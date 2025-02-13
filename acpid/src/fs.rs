@@ -59,6 +59,8 @@ impl AcpiFS {
                 self.user_command.ok_signal = usize::MAX;
                 self.user_command.cmd = 0;
             }
+
+            rstd::proc::r#yield();
         }
     }
 }

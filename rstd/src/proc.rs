@@ -13,3 +13,7 @@ pub fn vfork() -> isize {
 pub fn wait4(pid: usize) -> isize {
     syscall!(sc::nr::WAIT4, pid)
 }
+
+pub fn r#yield() -> isize {
+    syscall!(sc::nr::SCHED_YIELD)
+}
