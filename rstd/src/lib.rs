@@ -5,7 +5,7 @@
 
 use core::usize;
 
-extern crate alloc;
+pub extern crate alloc;
 
 #[macro_use]
 pub mod macros;

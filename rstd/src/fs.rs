@@ -17,3 +17,7 @@ pub fn write(fd: usize, buf: usize, len: usize) -> isize {
 pub fn fstat(fd: usize, buf: usize) -> isize {
     syscall!(sc::nr::FSTAT, fd, buf)
 }
+
+pub fn pipe(fd: [usize; 2]) -> isize {
+    syscall!(sc::nr::PIPE, fd.as_ptr() as usize)
+}

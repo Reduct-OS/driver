@@ -17,6 +17,21 @@ extern "C" fn _start() -> ! {
 
     println!("ACPID get acpi file size = {}", acpi_fsize);
 
+    let rxsdt_buf = rstd::alloc::vec![0u8; acpi_fsize as usize];
+    rstd::fs::read(fd, rxsdt_buf.as_ptr() as usize, acpi_fsize as usize);
+
+    let pipe: [usize; 2] = [0; 2];
+    rstd::fs::pipe(pipe);
+
+    let new_pid = rstd::proc::fork();
+    if new_pid == 0 {
+        println!("Child is running!!! ret = {}", new_pid);
+        rstd::fs::close(pipe[1]);
+    } else {
+        println!("Parent is running!!! ret = {}", new_pid);
+        rstd::fs::close(pipe[0]);
+    }
+
     loop {
         core::hint::spin_loop();
     }
