@@ -2,6 +2,10 @@ pub fn malloc(addr: usize, len: usize) -> isize {
     syscall!(10001, addr, len)
 }
 
+pub fn physmap(vaddr: usize, paddr: usize, len: usize) -> isize {
+    syscall!(10002, vaddr, paddr, len)
+}
+
 use core::alloc::Layout;
 use talc::OomHandler;
 use talc::{Span, Talc, Talck};

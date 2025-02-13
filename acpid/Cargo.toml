@@ -6,4 +6,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+aml = { git = "https://github.com/rw-vanc/acpi.git", branch = "cumulative" }
+plain = "0.2.3"
 rstd = { path = "../rstd" }
+spin = "0.9.8"

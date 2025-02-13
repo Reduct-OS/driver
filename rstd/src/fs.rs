@@ -18,6 +18,10 @@ pub fn fstat(fd: usize, buf: usize) -> isize {
     syscall!(sc::nr::FSTAT, fd, buf)
 }
 
-pub fn pipe(fd: [usize; 2]) -> isize {
-    syscall!(sc::nr::PIPE, fd.as_ptr() as usize)
+pub fn pipe(fd: usize) -> isize {
+    syscall!(sc::nr::PIPE, fd)
+}
+
+pub fn registfs(fs_name: &str, fs_addr: usize) -> isize {
+    syscall!(10003, fs_name.as_ptr() as usize, fs_name.len(), fs_addr)
 }
