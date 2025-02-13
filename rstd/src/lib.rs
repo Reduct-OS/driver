@@ -3,11 +3,21 @@
 #![allow(asm_sub_register)]
 #![feature(macro_metavar_expr)]
 
+use core::usize;
+
+extern crate alloc;
+
 #[macro_use]
 pub mod macros;
+pub mod fs;
+pub mod mm;
+pub mod proc;
+pub mod stat;
 pub mod stdio;
 
 #[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    println!("{}", info);
+    proc::exit(usize::MAX);
     loop {}
 }
