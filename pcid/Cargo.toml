@@ -1,0 +1,9 @@
+cargo-features = ["per-package-target"]
+
+[package]
+name = "pcid"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rstd = { path = "../rstd" }
