@@ -1,6 +1,8 @@
 #![no_std]
 #![no_main]
 #![allow(dead_code)]
+#![feature(inherent_str_constructors)]
+#![feature(vec_into_raw_parts)]
 
 use fs::AcpiFS;
 use rstd::alloc::sync::Arc;
@@ -61,9 +63,11 @@ extern "C" fn _start() -> ! {
 
     let mut fs = AcpiFS::new(acpi_context);
 
-    rstd::fs::registfs("/acpi", fs.fs_addr());
+    rstd::fs::registfs("acpi", fs.fs_addr());
 
     println!("Regist acpi fs OK");
+
+    drop(rxsdt_buf);
 
     fs.while_parse()
 }
