@@ -109,3 +109,7 @@ pub const USER_LIST: usize = 5;
 pub fn registfs(fs_name: &str, fs_addr: usize) -> isize {
     syscall!(10003, fs_name.as_ptr() as usize, fs_name.len(), fs_addr)
 }
+
+pub fn load_driver(driver_name: &str) -> isize {
+    syscall!(10007, driver_name.as_ptr() as usize, driver_name.len())
+}

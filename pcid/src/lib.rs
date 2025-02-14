@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use pci_types::device_type::DeviceType;
+use pci_types::{Bar, MAX_BARS, PciAddress, device_type::DeviceType};
 use rstd::alloc::string::String;
 
 /// All identifying information of a PCI function.
@@ -48,4 +48,12 @@ impl FullDeviceId {
         }
         string
     }
+}
+
+#[derive(Debug)]
+pub struct PciDevice {
+    pub address: PciAddress,
+    pub device_id: FullDeviceId,
+    pub device_type: DeviceType,
+    pub bars: [Option<Bar>; MAX_BARS],
 }

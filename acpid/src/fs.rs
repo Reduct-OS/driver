@@ -163,7 +163,7 @@ impl AcpiFS {
                             self.user_command.ret_val = 0;
                         }
                     }
-                    _ => println!("Unknown command: {}", cmd),
+                    _ => println!("acpid: unknown command: {}", cmd),
                 }
                 self.user_command.ok_signal = usize::MAX;
                 self.user_command.cmd = 0;
