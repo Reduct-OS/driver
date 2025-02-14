@@ -9,6 +9,7 @@ pub extern crate alloc;
 
 #[macro_use]
 pub mod macros;
+pub mod dma;
 pub mod fs;
 pub mod mm;
 pub mod proc;

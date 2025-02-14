@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 sc = { path = "../../kernel/crates/sc" }
 spin = "0.9.8"
+x86_64 = "0.15.2"

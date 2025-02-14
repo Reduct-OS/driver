@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 #![allow(dead_code)]
+#![feature(let_chains)]
 #![feature(inherent_str_constructors)]
 
 use core::sync::atomic::AtomicBool;
@@ -137,10 +138,16 @@ extern "C" fn _start() -> ! {
 
     for pci_device in pci_devices.iter() {
         match pci_device.device_type {
-            DeviceType::SataController => {
-                static AHCI_LOADED: AtomicBool = AtomicBool::new(false);
-                if AHCI_LOADED.fetch_or(true, core::sync::atomic::Ordering::SeqCst) {
-                    rstd::fs::load_driver("/drv/ahcid");
+            // DeviceType::SataController => {
+            //     static AHCI_LOADED: AtomicBool = AtomicBool::new(false);
+            //     if !AHCI_LOADED.fetch_or(true, core::sync::atomic::Ordering::SeqCst) {
+            //         rstd::fs::load_driver("/drv/ahcid");
+            //     }
+            // }
+            DeviceType::NvmeController => {
+                static NVME_LOADED: AtomicBool = AtomicBool::new(false);
+                if !NVME_LOADED.fetch_or(true, core::sync::atomic::Ordering::SeqCst) {
+                    rstd::fs::load_driver("/drv/nvmed");
                 }
             }
             _ => {}
@@ -150,6 +157,8 @@ extern "C" fn _start() -> ! {
     let mut fs = PciFS::new(pci_devices);
 
     rstd::fs::registfs("pci", fs.fs_addr());
+
+    println!("Regist pci fs OK");
 
     fs.while_parse()
 }

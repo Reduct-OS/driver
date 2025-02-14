@@ -26,6 +26,14 @@ pub fn pipe(fd: usize) -> isize {
     syscall!(sc::nr::PIPE, fd)
 }
 
+pub fn lseek(fd: usize, offset: usize) -> isize {
+    syscall!(sc::nr::LSEEK, fd, offset)
+}
+
+pub fn ioctl(fd: usize, cmd: usize, arg: usize) -> isize {
+    syscall!(sc::nr::IOCTL, fd, cmd, arg)
+}
+
 #[derive(Default, Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub enum InodeTy {
     Dir = 0,
@@ -105,6 +113,7 @@ pub const USER_WRITE: usize = 2;
 pub const USER_OPEN: usize = 3;
 pub const USER_SIZE: usize = 4;
 pub const USER_LIST: usize = 5;
+pub const USER_IOCTL: usize = 6;
 
 pub fn registfs(fs_name: &str, fs_addr: usize) -> isize {
     syscall!(10003, fs_name.as_ptr() as usize, fs_name.len(), fs_addr)

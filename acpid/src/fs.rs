@@ -2,6 +2,7 @@ use rstd::{
     alloc::{string::String, vec::Vec},
     fs::{USER_LIST, USER_OPEN, USER_READ, USER_SIZE, UserCommand},
 };
+use spin::Mutex;
 
 use crate::acpi::{AcpiContext, SdtSignature};
 
@@ -98,6 +99,7 @@ impl AcpiHandle {
 }
 
 pub struct AcpiFS {
+    lock: Mutex<()>,
     acpi_context: AcpiContext,
     current_handle: AcpiHandle,
     user_command: UserCommand,
@@ -106,6 +108,7 @@ pub struct AcpiFS {
 impl AcpiFS {
     pub fn new(ctx: AcpiContext) -> Self {
         Self {
+            lock: Mutex::new(()),
             acpi_context: ctx,
             current_handle: AcpiHandle::NoHandle,
             user_command: UserCommand::default(),
@@ -174,6 +177,7 @@ impl AcpiFS {
     }
 
     fn open(&mut self, path: &str) {
+        let guard = self.lock.lock();
         match path {
             "" => {
                 self.current_handle = AcpiHandle::TopLevel;
@@ -181,11 +185,15 @@ impl AcpiFS {
             "tables" => {
                 self.current_handle = AcpiHandle::Tables;
             }
-            _ => self.open_table(path),
+            _ => {
+                drop(guard);
+                self.open_table(path)
+            }
         }
     }
 
     fn open_table(&mut self, path: &str) {
+        let _guard = self.lock.lock();
         if let Some((tables, table)) = path.split_once(':') {
             match tables {
                 "tables" => {
@@ -199,6 +207,7 @@ impl AcpiFS {
     }
 
     fn read(&mut self, buf: &mut [u8]) -> Result<usize, ()> {
+        let _guard = self.lock.lock();
         let src_buf = match &self.current_handle {
             AcpiHandle::Table(signature) => self
                 .acpi_context
@@ -221,6 +230,7 @@ impl AcpiFS {
     }
 
     fn size(&mut self) -> Result<usize, ()> {
+        let _guard = self.lock.lock();
         self.current_handle
             .len(&self.acpi_context)
             .try_into()
@@ -228,6 +238,7 @@ impl AcpiFS {
     }
 
     fn list(&mut self) -> Result<(usize, usize, usize), ()> {
+        let _guard = self.lock.lock();
         match &self.current_handle {
             AcpiHandle::Tables => {
                 let mut result = Vec::new();
