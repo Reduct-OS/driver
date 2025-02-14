@@ -182,8 +182,6 @@ impl PciFS {
         let cmd = buf[0];
         let arg = buf[1];
 
-        println!("Recieved ioctl command: {}", cmd);
-
         if cmd == 1 {
             match &self.current_handle {
                 PciHandle::GetBar(bar) => {

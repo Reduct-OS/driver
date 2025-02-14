@@ -1,6 +1,7 @@
 use nvme::{memory::Allocator, nvme::NvmeDevice};
 use rstd::{alloc::vec::Vec, println};
-use spin::Mutex;
+
+use crate::fs::NvmeFS;
 
 pub struct NvmeAllocator;
 
@@ -11,9 +12,10 @@ impl Allocator for NvmeAllocator {
     }
 }
 
-pub static NVME_DEVICES: Mutex<Vec<NvmeDevice<NvmeAllocator>>> = Mutex::new(Vec::new());
+pub fn init() -> NvmeFS {
+    let mut nvme_devices = Vec::new();
+    let mut nvme_lens = Vec::new();
 
-pub fn init() {
     let mut fd = usize::MAX;
     while fd == usize::MAX {
         fd = rstd::fs::open(":pci:nvme:0", 0) as usize;
@@ -42,17 +44,11 @@ pub fn init() {
     let namespace = nvme_device.identify_namespace(1);
     println!("Namespace: {:?}", namespace);
 
-    NVME_DEVICES.lock().push(nvme_device);
-}
+    let hd_size = namespace.1;
 
-pub fn read_block(idx: usize, lba: u64, buffer: &mut [u8]) {
-    let mut nvme_devices = NVME_DEVICES.lock();
-    let nvme_device = nvme_devices.get_mut(idx).unwrap();
-    nvme_device.read_copied(buffer, lba).unwrap();
-}
+    nvme_devices.push(nvme_device);
+    nvme_lens.push(hd_size as usize);
 
-pub fn write_block(idx: usize, lba: u64, buffer: &mut [u8]) {
-    let mut nvme_devices = NVME_DEVICES.lock();
-    let nvme_device = nvme_devices.get_mut(idx).unwrap();
-    nvme_device.write_copied(buffer, lba).unwrap();
+    let fs = NvmeFS::new(nvme_devices, nvme_lens);
+    return fs;
 }

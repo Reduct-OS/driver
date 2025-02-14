@@ -2,27 +2,24 @@
 #![no_main]
 #![allow(dead_code)]
 #![allow(unsafe_op_in_unsafe_fn)]
+#![feature(inherent_str_constructors)]
 
 use rstd::println;
 
 extern crate rstd;
 
-mod nlog;
+pub mod fs;
 pub mod nvme;
 
 #[unsafe(no_mangle)]
 extern "C" fn _start() -> ! {
     println!("nvmed starting...");
 
-    // nlog::init();
+    let mut fs = nvme::init();
 
-    nvme::init();
+    rstd::fs::registfs("block", fs.fs_addr());
 
-    let buffer = &mut [0u8; 512];
-    nvme::read_block(0, 1, buffer);
-    println!("buffer: {:#X?}", buffer);
+    println!("Regist nvme fs OK");
 
-    loop {
-        core::hint::spin_loop();
-    }
+    fs.while_parse()
 }

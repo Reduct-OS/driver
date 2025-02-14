@@ -1,0 +1,17 @@
+cargo-features = ["per-package-target"]
+
+[package]
+name = "fsmd"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gpt_disk_io = "0.16.0"
+log = "0.4.25"
+rstd = { path = "../rstd" }
+spin = "0.9.8"
+
+[dependencies.fatfs]
+path = "crates/good-fatfs"
+features = ["lfn", "alloc", "unicode"]
+default-features = false
