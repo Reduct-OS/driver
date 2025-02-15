@@ -6,7 +6,7 @@
 
 use dev::DevInode;
 use gpt_parser::{PARTITIONS, parse_gpt_disk};
-use inode::{ROOT, user_open};
+use inode::ROOT;
 use rstd::println;
 
 extern crate rstd;
