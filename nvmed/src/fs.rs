@@ -131,7 +131,25 @@ impl NvmeFS {
         match self.current_handle {
             NvmeHandle::RwHandle(idx) => {
                 let nvme_device = &mut self.nvme_devices[idx];
-                nvme_device.read_copied(buf, offset as u64 / 512).unwrap();
+
+                let start = offset;
+                let end = start + buf.len();
+
+                let start_sector_read_start = start % 512;
+
+                let start_sector_id = start / 512;
+                let end_sector_id = (end - 1) / 512;
+
+                let buffer_size = (end_sector_id - start_sector_id + 1) * 512;
+                let mut tmp = rstd::alloc::vec![0u8; buffer_size];
+
+                nvme_device
+                    .read_copied(&mut tmp, start_sector_id as u64)
+                    .unwrap();
+
+                for i in 0..(end - start) {
+                    buf[i] = tmp[i + start_sector_read_start];
+                }
             }
             _ => return Err(()),
         }
@@ -145,7 +163,29 @@ impl NvmeFS {
         match self.current_handle {
             NvmeHandle::RwHandle(idx) => {
                 let nvme_device = &mut self.nvme_devices[idx];
-                nvme_device.write_copied(buf, offset as u64 / 512).unwrap();
+
+                let start = offset;
+                let end = start + buf.len();
+
+                let start_sector_read_start = start % 512;
+
+                let start_sector_id = start / 512;
+                let end_sector_id = (end - 1) / 512;
+
+                let buffer_size = (end_sector_id - start_sector_id + 1) * 512;
+                let mut tmp = rstd::alloc::vec![0u8; buffer_size];
+
+                nvme_device
+                    .read_copied(&mut tmp, start_sector_id as u64)
+                    .unwrap();
+
+                for i in 0..(end - start) {
+                    tmp[i + start_sector_read_start] = buf[i];
+                }
+
+                nvme_device
+                    .write_copied(&mut tmp, start_sector_id as u64)
+                    .unwrap();
             }
             _ => return Err(()),
         }

@@ -1,8 +1,7 @@
-use rstd::{
-    alloc::{string::String, sync::Arc},
-    fs::{Inode, InodeRef},
-};
+use rstd::alloc::{string::String, sync::Arc};
 use spin::RwLock;
+
+use crate::inode::{Inode, InodeRef};
 
 pub struct DevInode {
     path: String,
@@ -19,7 +18,7 @@ impl DevInode {
 }
 
 impl Inode for DevInode {
-    fn when_mounted(&mut self, path: String, _father: Option<rstd::fs::InodeRef>) {
+    fn when_mounted(&mut self, path: String, _father: Option<InodeRef>) {
         self.path.clear();
         self.path.push_str(path.as_str());
     }

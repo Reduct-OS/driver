@@ -1,8 +1,10 @@
 use fatfs::*;
 use rstd::alloc::{boxed::Box, collections::BTreeMap, string::String, sync::Arc, vec::Vec};
-use rstd::fs::{FileInfo, Inode, InodeRef, InodeTy, user_open};
+use rstd::fs::{FileInfo, InodeTy};
 use rstd::{ref_to_mut, ref_to_static, unsafe_trait_impl};
 use spin::RwLock;
+
+use crate::inode::{Inode, InodeRef, user_open};
 
 type FatDir = Dir<'static, InodeRefIO, NullTimeProvider, LossyOemCpConverter>;
 type FatFile = File<'static, InodeRefIO, NullTimeProvider, LossyOemCpConverter>;

@@ -2,6 +2,7 @@
 #![no_main]
 #![allow(dead_code)]
 #![allow(unsafe_op_in_unsafe_fn)]
+#![feature(int_roundings)]
 #![feature(inherent_str_constructors)]
 
 use rstd::println;

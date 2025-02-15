@@ -2,11 +2,10 @@ use gpt_disk_io::{
     BlockIo, Disk, DiskError,
     gpt_disk_types::{BlockSize, GptPartitionEntryArrayLayout, GptPartitionEntrySize, Lba},
 };
-use rstd::{
-    alloc::{string::String, sync::Arc, vec::Vec},
-    fs::{Inode, InodeRef},
-};
+use rstd::alloc::{string::String, sync::Arc, vec::Vec};
 use spin::{Mutex, RwLock};
+
+use crate::inode::{Inode, InodeRef};
 
 pub struct PartitionInode {
     offset: usize,

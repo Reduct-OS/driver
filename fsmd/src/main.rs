@@ -6,13 +6,16 @@
 
 use dev::DevInode;
 use gpt_parser::{PARTITIONS, parse_gpt_disk};
-use rstd::{fs::ROOT, println};
+use inode::{ROOT, user_open};
+use rstd::println;
 
 extern crate rstd;
 
 mod dev;
 mod fat32;
 mod gpt_parser;
+mod inode;
+// mod test_log;
 
 fn try_open_root_device() -> usize {
     let mut fd = usize::MAX;
@@ -30,11 +33,15 @@ fn try_open_root_device() -> usize {
 extern "C" fn _start() -> ! {
     println!("fsmd starting...");
 
+    // test_log::init();
+
     let fd = try_open_root_device();
     println!("root device fd: {}", fd);
 
     let root_device = DevInode::new(fd);
     parse_gpt_disk(root_device).expect("Cannot parse GPT disk");
+
+    println!("Parse GPT disk OK");
 
     let partition = PARTITIONS
         .lock()
@@ -49,11 +56,6 @@ extern "C" fn _start() -> ! {
     *ROOT.lock() = fsroot;
 
     println!("fsmd OK");
-
-    let test_inode = rstd::fs::user_open(rstd::alloc::string::String::from("/drv/fsmd"))
-        .expect("Cannot open /drv/fsmd");
-
-    println!("/drv/fsmd size = {}", test_inode.read().size());
 
     loop {
         core::hint::spin_loop();
