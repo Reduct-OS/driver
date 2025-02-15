@@ -3,16 +3,19 @@
 #![allow(dead_code)]
 #![allow(unsafe_op_in_unsafe_fn)]
 #![feature(inherent_str_constructors)]
+#![feature(vec_into_raw_parts)]
 
 use dev::DevInode;
+use fs::FsmFS;
 use gpt_parser::{PARTITIONS, parse_gpt_disk};
 use inode::ROOT;
-use rstd::println;
+use rstd::{alloc::string::ToString, println};
 
 extern crate rstd;
 
 mod dev;
 mod fat32;
+mod fs;
 mod gpt_parser;
 mod inode;
 // mod test_log;
@@ -54,10 +57,17 @@ extern "C" fn _start() -> ! {
     let fsroot = fat32::Fat32Volume::new(partition).expect("Cannot open FAT volume");
 
     *ROOT.lock() = fsroot;
+    ROOT.lock().write().when_mounted("/".to_string(), None);
 
     println!("fsmd OK");
 
-    loop {
-        core::hint::spin_loop();
-    }
+    let mut fsm_fs = FsmFS::new();
+
+    rstd::fs::registfs("fsm", fsm_fs.fs_addr());
+
+    rstd::fs::load_driver("/usr/init");
+
+    println!("Regist fsm fs OK");
+
+    fsm_fs.while_parse()
 }

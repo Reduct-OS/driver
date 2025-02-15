@@ -8,5 +8,5 @@ edition = "2024"
 [dependencies]
 log = "0.4.25"
 nvme = "0.1.2"
-rstd = { path = "../rstd" }
+rstd = { path = "../../rstd" }
 spin = "0.9.8"
