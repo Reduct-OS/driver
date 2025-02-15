@@ -2,7 +2,8 @@
 #![no_main]
 #![feature(inherent_str_constructors)]
 
-use gui::Gui;
+use fur::{display::Display, window::WindowBuilder};
+use gui::Driver;
 use rstd::println;
 
 extern crate rstd;
@@ -13,7 +14,13 @@ pub mod gui;
 extern "C" fn _start() -> ! {
     println!("fbd starting...");
 
-    let mut gui = Gui::new();
+    let mut window = WindowBuilder::new(800, 600);
 
-    gui.main_loop()
+    window
+        .title("window")
+        .draw(&mut Display::new(Driver::new()));
+
+    loop {
+        core::hint::spin_loop();
+    }
 }

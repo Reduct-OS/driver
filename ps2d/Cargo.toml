@@ -1,9 +1,8 @@
 [package]
-name = "fbd"
+name = "ps2d"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-fur = { git = "https://github.com/plos-clan/Fur" }
 rstd = { path = "../../rstd" }
 spin = "0.9.8"

@@ -1,66 +1,85 @@
-use rstd::{println, ref_to_mut};
-use spin::Mutex;
+use fur::display::DisplayDriver;
+use rstd::alloc::sync::Arc;
+use spin::RwLock;
 
-pub struct Gui {
-    lock: Mutex<()>,
-    buffer: &'static mut [u32],
+pub struct Driver {
     fb_fd: usize,
     width: usize,
     height: usize,
+    buffer: &'static mut [u32],
 }
 
-impl Gui {
-    pub fn new() -> Gui {
-        let fb_fd = rstd::fs::open("/dev/kernel.fb", 1) as usize;
-
-        let width = rstd::fs::ioctl(fb_fd, 1, 0) as usize;
-        let height = rstd::fs::ioctl(fb_fd, 2, 0) as usize;
-
-        println!("fbd: width = {}, height = {}", width, height);
-
-        let buffer = rstd::alloc::vec![0u32; width * height].leak();
-        assert_eq!(buffer.len(), width * height);
-
-        Gui {
-            lock: Mutex::new(()),
-            buffer,
-            width,
-            height,
-            fb_fd,
-        }
-    }
-
-    pub fn width(&self) -> usize {
-        self.width
-    }
-
-    pub fn height(&self) -> usize {
-        self.height
-    }
-
-    fn draw_background(&mut self) {
-        let _guard = self.lock.lock();
-
-        self.buffer.fill(0x001685A9);
-    }
-
-    pub fn main_loop(&mut self) -> ! {
-        self.draw_background();
-
-        loop {
-            self.flush();
+impl Driver {
+    pub fn new() -> Arc<RwLock<Driver>> {
+        let mut fd = usize::MAX;
+        while fd == usize::MAX {
+            fd = rstd::fs::open("/dev/kernel.fb", 2) as usize;
 
             rstd::proc::r#yield();
         }
+
+        let width = rstd::fs::ioctl(fd, 1, 0) as usize;
+        let height = rstd::fs::ioctl(fd, 2, 0) as usize;
+
+        let buffer = rstd::alloc::vec![0u32; width * height].leak();
+
+        let driver = Arc::new(RwLock::new(Driver {
+            fb_fd: fd,
+            width,
+            height,
+            buffer,
+        }));
+
+        driver.write().init();
+
+        driver
+    }
+
+    fn init(&mut self) {
+        self.buffer.fill(0x001685A9);
+        self.flush();
     }
 
     pub fn flush(&self) {
-        let _guard = self.lock.lock();
-
         rstd::fs::write(
             self.fb_fd,
-            ref_to_mut(self).buffer.as_mut_ptr() as usize,
+            self.buffer.as_ptr() as usize,
             self.buffer.len() * size_of::<u32>(),
         );
+    }
+}
+
+impl DisplayDriver for Driver {
+    fn read(
+        &self,
+        _x: usize,
+        _y: usize,
+        _width: usize,
+        _height: usize,
+        _pixels: &mut [fur::color::Color],
+    ) {
+    }
+
+    fn write(
+        &mut self,
+        x: usize,
+        y: usize,
+        width: usize,
+        height: usize,
+        color: &fur::color::Color,
+    ) {
+        for dx in 0..width {
+            for dy in 0..height {
+                let t_x = dx + x;
+                let t_y = dy + y;
+                self.buffer[t_y * self.width + t_x] = color.as_0rgb_u32();
+            }
+        }
+
+        self.flush();
+    }
+
+    fn size(&self) -> (usize, usize) {
+        (self.width, self.height)
     }
 }
