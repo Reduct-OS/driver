@@ -1,13 +1,13 @@
 cargo-features = ["per-package-target"]
 
 [package]
+edition = "2024"
 name = "pcid"
 version = "0.1.0"
-edition = "2024"
 
 [dependencies]
-rstd = { path = "../../rstd" }
-plain = "0.2.3"
-spin = "0.9.8"
 pci_types = "0.10.0"
+plain = "0.2.3"
+rstd = {path = "../../rstd"}
+spin = "0.9.8"
 x86_64 = "0.15.2"

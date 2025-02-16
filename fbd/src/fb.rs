@@ -1,11 +1,15 @@
-use fur::display::DisplayDriver;
 use rstd::alloc::sync::Arc;
 use spin::RwLock;
 
+pub trait FrameBuffer {
+    fn write(&mut self, x: usize, y: usize, color: u32);
+    fn flush_buf(&self);
+}
+
 pub struct Driver {
-    fb_fd: usize,
-    width: usize,
-    height: usize,
+    pub fb_fd: usize,
+    pub width: usize,
+    pub height: usize,
     buffer: &'static mut [u32],
 }
 
@@ -49,37 +53,12 @@ impl Driver {
     }
 }
 
-impl DisplayDriver for Driver {
-    fn read(
-        &self,
-        _x: usize,
-        _y: usize,
-        _width: usize,
-        _height: usize,
-        _pixels: &mut [fur::color::Color],
-    ) {
+impl FrameBuffer for Driver {
+    fn write(&mut self, x: usize, y: usize, color: u32) {
+        self.buffer[y * self.width + x] = color;
     }
 
-    fn write(
-        &mut self,
-        x: usize,
-        y: usize,
-        width: usize,
-        height: usize,
-        color: &fur::color::Color,
-    ) {
-        for dx in 0..width {
-            for dy in 0..height {
-                let t_x = dx + x;
-                let t_y = dy + y;
-                self.buffer[t_y * self.width + t_x] = color.as_0rgb_u32();
-            }
-        }
-
+    fn flush_buf(&self) {
         self.flush();
-    }
-
-    fn size(&self) -> (usize, usize) {
-        (self.width, self.height)
     }
 }

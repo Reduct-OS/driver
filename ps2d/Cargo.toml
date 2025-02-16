@@ -1,8 +1,8 @@
 [package]
+edition = "2024"
 name = "ps2d"
 version = "0.1.0"
-edition = "2024"
 
 [dependencies]
-rstd = { path = "../../rstd" }
+rstd = {path = "../../rstd"}
 spin = "0.9.8"

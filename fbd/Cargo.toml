@@ -1,9 +1,9 @@
 [package]
+edition = "2024"
 name = "fbd"
 version = "0.1.0"
-edition = "2024"
 
 [dependencies]
-fur = { git = "https://github.com/plos-clan/Fur" }
-rstd = { path = "../../rstd" }
+noto-sans-mono-bitmap = {version = "0.3.1", features = ["regular", "size_20", "unicode-basic-latin", "unicode-specials"], default-features = false}
+rstd = {path = "../../rstd"}
 spin = "0.9.8"

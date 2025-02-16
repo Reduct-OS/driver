@@ -1,24 +1,24 @@
 #![no_std]
 #![no_main]
+#![allow(dead_code)]
 #![feature(inherent_str_constructors)]
 
-use fur::{display::Display, window::WindowBuilder};
-use gui::Driver;
+use fb::Driver;
 use rstd::println;
+use window::Window;
 
 extern crate rstd;
 
-pub mod gui;
+pub mod fb;
+pub mod window;
 
 #[unsafe(no_mangle)]
 extern "C" fn _start() -> ! {
     println!("fbd starting...");
 
-    let mut window = WindowBuilder::new(800, 600);
-
-    window
-        .title("window")
-        .draw(&mut Display::new(Driver::new()));
+    let mut window = Window::new(Driver::new());
+    let window = window.set_title("test").set_size(800, 600);
+    window.draw();
 
     loop {
         core::hint::spin_loop();
